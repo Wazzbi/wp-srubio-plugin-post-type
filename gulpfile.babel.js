@@ -13,7 +13,8 @@ import WebpackObfuscator from "webpack-obfuscator";
 import named from "vinyl-named";
 import zip from "gulp-zip";
 import replace from "gulp-replace";
-import info from "./package.json" with { type: 'json' };;
+import info from "./package.json" with { type: 'json' };
+import wpPot from "gulp-wp-pot";
 
 //TODO css & js task could be deleted
 
@@ -159,6 +160,17 @@ export const scripts = (cb) => {
     .on("end", cb);
 };
 
+export const pot = () => {
+  return gulp
+    .src("**/*.php")
+    .pipe(wpPot({
+      domain: '_themename-_pluginname',
+      package: info.name,
+      lastTranslator: info.author.name,
+    }))
+    .pipe(gulp.dest(`languages/${info.name}.pot`));
+}
+
 //export theme zip file
 export const compress = (cb) => {
   gulp
@@ -186,7 +198,8 @@ export const dev = gulp.series(
 export const build = gulp.series(
   clean,
   gulp.parallel(styles, scripts, images, otherAssets),
-  compress
+  compress,
+  pot
 );
 
 export default dev;
