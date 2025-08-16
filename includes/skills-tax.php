@@ -20,7 +20,7 @@ function _themename__pluginname_register_skills_tax()
         'labels' => $labels,
         'rewrite' => ['slug' => 'skills']
     );
-    register_taxonomy('_themename_skills', ['_themename_portfolio'], $args);
+    register_taxonomy('_themename_skills', ['_themename_product'], $args);
 };
 
 add_action('init', '_themename__pluginname_register_skills_tax');

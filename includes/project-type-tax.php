@@ -20,7 +20,7 @@ function _themename__pluginname_register_project_type_tax()
         'labels' => $labels,
         'rewrite' => array('slug' => 'project_type')
     );
-    register_taxonomy('_themename_project_type', ['_themename_portfolio'], $args);
+    register_taxonomy('_themename_project_type', ['_themename_product'], $args);
 };
 
 add_action('init', '_themename__pluginname_register_project_type_tax');
