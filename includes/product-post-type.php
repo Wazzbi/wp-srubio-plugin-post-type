@@ -32,7 +32,7 @@ function _themename__pluginname_setup_post_type()
     register_post_type('_themename_product', array(
         'public' => true,
         'has_archive' => true,
-        'menu_icon' => 'dashicons-format-gallery',
+        'menu_icon' => 'dashicons-cart',
         'labels' => $labels,
         'supports' => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments'),
         'rewrite' => array('slug' => 'products')
