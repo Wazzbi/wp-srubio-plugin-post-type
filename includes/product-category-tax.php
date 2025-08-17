@@ -99,32 +99,16 @@ function _themename_product_category_metabox_callback($post)
         <!-- The tab system for All Categories and Most Used, which is required for the Add New functionality to work -->
         <ul id="<?php echo esc_attr('_themename_product_category'); ?>-tabs" class="category-tabs">
             <li class="tabs"><a href="#<?php echo esc_attr('_themename_product_category'); ?>-all"><?php esc_html_e('All Categories', '_themename-_pluginname'); ?></a></li>
-            <li class="hide-if-no-js"><a href="#<?php echo esc_attr('_themename_product_category'); ?>-pop"><?php esc_html_e('Most Used', '_themename-_pluginname'); ?></a></li>
         </ul>
 
         <!-- All Categories Tab -->
         <div id="<?php echo esc_attr('_themename_product_category'); ?>-all" class="tabs-panel">
             <ul id="<?php echo esc_attr('_themename_product_category'); ?>checklist" class="categorychecklist form-no-clear">
-                <?php _themename_render_term_tree($term_tree, $post_terms_ids); ?>
+                <?php _themename_render_term_tree($term_tree, $post_terms_ids, 0); ?>
             </ul>
         </div>
 
-        <!-- Most Used Categories Tab (simplified for this example) -->
-        <div id="<?php echo esc_attr('_themename_product_category'); ?>-pop" class="tabs-panel" style="display: none;">
-            <ul id="<?php echo esc_attr('_themename_product_category'); ?>-pop-checklist" class="categorychecklist form-no-clear">
-                <?php
-                // Get the most used terms for this taxonomy.
-                $most_used_terms = get_terms([
-                    'taxonomy'   => '_themename_product_category',
-                    'orderby'    => 'count',
-                    'order'      => 'DESC',
-                    'number'     => 10, // Or whatever number you prefer
-                    'hide_empty' => false,
-                ]);
-                _themename_render_term_tree($most_used_terms, $post_terms_ids);
-                ?>
-            </ul>
-        </div>
+
 
         <!-- Add New Category Form -->
         <div id="<?php echo esc_attr('_themename_product_category'); ?>-adder" class="wp-hidden-no-js category-adder">
@@ -176,6 +160,38 @@ function _themename_product_category_metabox_callback($post)
                 $(this).closest('li').addClass('tabs');
                 panels.hide();
                 $(target).show();
+            });
+
+            $('#<?php echo esc_attr('_themename_product_category'); ?>checklist').on('change', 'input[type="checkbox"]', function() {
+                var $checkbox = $(this);
+
+                // Check the parents if a child checkbox is checked
+                if ($checkbox.is(':checked')) {
+                    var $parentLi = $checkbox.closest('li').parent().closest('li');
+                    while ($parentLi.length) {
+                        var $parentCheckbox = $parentLi.find('input[type="checkbox"]:first');
+                        $parentCheckbox.prop('checked', true);
+                        $parentLi = $parentLi.parent().closest('li');
+                    }
+                }
+            });
+
+            $('#<?php echo esc_attr('_themename_product_category'); ?>checklist').on('change', 'input[type="checkbox"]', function() {
+                var $checkbox = $(this);
+                var term_id = $checkbox.val();
+                var $li = $checkbox.closest('li');
+
+                // Check the parents if a child checkbox is checked
+                if ($checkbox.is(':checked')) {
+                    var $parentLi = $li.parent().closest('li');
+                    while ($parentLi.length) {
+                        $parentLi.find('input[type="checkbox"]:first').prop('checked', true);
+                        $parentLi = $parentLi.parent().closest('li');
+                    }
+                } else {
+                    // Uncheck all children if a parent checkbox is unchecked
+                    $li.find('ul input[type="checkbox"]').prop('checked', false);
+                }
             });
 
             // Handle adding a new category via AJAX
@@ -305,7 +321,7 @@ function _themename_build_term_tree($flat_terms, $parent_id = 0)
  * @param array $selected_ids  Array of term IDs currently assigned to the post.
  * @param int   $depth         Current depth of the tree (for indentation).
  */
-function _themename_render_term_tree($tree, $selected_ids)
+function _themename_render_term_tree($tree, $selected_ids, $parent_id = 0)
 {
     if (empty($tree)) {
         return;
@@ -314,16 +330,15 @@ function _themename_render_term_tree($tree, $selected_ids)
     foreach ($tree as $term) {
         $checked = in_array($term->term_id, $selected_ids) ? 'checked' : '';
     ?>
-        <li id="term-<?php echo esc_attr($term->term_id); ?>">
+        <li id="term-<?php echo esc_attr($term->term_id); ?>" data-parent="<?php echo esc_attr($parent_id); ?>">
             <label class="selectit">
-                <input value="<?php echo esc_attr($term->term_id); ?>" type="checkbox" name="tax_input[_themename_product_category][]" id="in-<?php echo esc_attr('_themename_product_category'); ?>-<?php echo esc_attr(rand(1, 99999)); ?>" <?php echo $checked; ?> />
+                <input value="<?php echo esc_attr($term->term_id); ?>" type="checkbox" name="tax_input[_themename_product_category][]" id="in-<?php echo esc_attr('_themename_product_category'); ?>-<?php echo esc_attr($term->term_id); ?>" <?php echo $checked; ?> />
                 <?php echo esc_html($term->name); ?>
             </label>
     <?php
-        // Recursively call this function for the children.
         if (!empty($term->children)) {
             echo '<ul>';
-            _themename_render_term_tree($term->children, $selected_ids);
+            _themename_render_term_tree($term->children, $selected_ids, $term->term_id);
             echo '</ul>';
         }
         echo '</li>';
@@ -367,3 +382,42 @@ function _themename_add_product_category_ajax()
 }
 
 add_action('wp_ajax_add_product_category_ajax', '_themename_add_product_category_ajax');
+
+/**
+ * Save the terms from our custom taxonomy meta box.
+ * This function is hooked to the `save_post` action.
+ *
+ * @param int $post_id The ID of the post being saved.
+ */
+function _themename_save_product_category_metabox($post_id)
+{
+    // Check if the current user has permission to save.
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    // Check if we are saving a revision. If so, our script should stop.
+    if (wp_is_post_revision($post_id)) {
+        return;
+    }
+
+    // Sanitize and get the term IDs from the form.
+    // The name of our input is tax_input[_themename_product_category]
+    $taxonomy_slug = '_themename_product_category';
+
+    // Check if the tax_input array is set and not empty.
+    if (isset($_POST['tax_input'][$taxonomy_slug])) {
+        // Sanitize the input. Each term ID should be an integer.
+        $term_ids = array_map('intval', $_POST['tax_input'][$taxonomy_slug]);
+
+        // Use wp_set_post_terms() to update the post's terms.
+        wp_set_post_terms($post_id, $term_ids, $taxonomy_slug);
+    } else {
+        // If no terms are checked, we need to remove all terms from the post for this taxonomy.
+        // This handles the case where all checkboxes are unchecked.
+        wp_set_post_terms($post_id, array(), $taxonomy_slug);
+    }
+}
+
+// Hook our function to the `save_post` action.
+add_action('save_post', '_themename_save_product_category_metabox');
