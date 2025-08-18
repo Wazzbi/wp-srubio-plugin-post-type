@@ -51,7 +51,7 @@ const paths = {
     dest: "dist/assets/images",
   },
   scripts: {
-    src: ["src/assets/js/bundle.js"],
+    src: ["src/assets/js/product-category-tax/taxonomy-image.js"],
     dest: "dist/assets/js",
   },
   other: {

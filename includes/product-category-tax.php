@@ -335,7 +335,7 @@ function _themename_render_term_tree($tree, $selected_ids, $parent_id = 0)
                 <input value="<?php echo esc_attr($term->term_id); ?>" type="checkbox" name="tax_input[_themename_product_category][]" id="in-<?php echo esc_attr('_themename_product_category'); ?>-<?php echo esc_attr($term->term_id); ?>" <?php echo $checked; ?> />
                 <?php echo esc_html($term->name); ?>
             </label>
-    <?php
+        <?php
         if (!empty($term->children)) {
             echo '<ul>';
             _themename_render_term_tree($term->children, $selected_ids, $term->term_id);
@@ -421,3 +421,107 @@ function _themename_save_product_category_metabox($post_id)
 
 // Hook our function to the `save_post` action.
 add_action('save_post', '_themename_save_product_category_metabox');
+
+/*
+ * Add a new field to the 'Add New' form.
+ */
+function _themename_product_category_add_form_fields()
+{
+        ?>
+        <div class="form-field term-image-wrap">
+            <label for="term_image_id"><?php esc_html_e('Category Image', '_themename-_pluginname'); ?></label>
+            <input type="hidden" id="term_image_id" name="term_image_id" value="">
+            <div id="term_image_preview"></div>
+            <p>
+                <a href="#" class="button upload_image_button"><?php esc_html_e('Upload/Add Image', '_themename-_pluginname'); ?></a>
+                <a href="#" class="button remove_image_button" style="display:none;"><?php esc_html_e('Remove Image', '_themename-_pluginname'); ?></a>
+            </p>
+        </div>
+    <?php
+}
+add_action('_themename_product_category_add_form_fields', '_themename_product_category_add_form_fields');
+
+/*
+ * Add a new field to the 'Edit' form.
+ */
+function _themename_product_category_edit_form_fields($term)
+{
+    $image_id = get_term_meta($term->term_id, 'term_image_id', true);
+    $image_url = $image_id ? wp_get_attachment_url($image_id) : '';
+    ?>
+        <tr class="form-field term-image-wrap">
+            <th scope="row"><label for="term_image_id"><?php esc_html_e('Category Image', '_themename-_pluginname'); ?></label></th>
+            <td>
+                <input type="hidden" id="term_image_id" name="term_image_id" value="<?php echo esc_attr($image_id); ?>">
+                <div id="term_image_preview">
+                    <?php if ($image_url) { ?>
+                        <img src="<?php echo esc_url($image_url); ?>" alt="" style="max-width:150px; height:auto;">
+                    <?php } ?>
+                </div>
+                <p>
+                    <a href="#" class="button upload_image_button"><?php esc_html_e('Upload/Add Image', '_themename-_pluginname'); ?></a>
+                    <a href="#" class="button remove_image_button" style="<?php echo $image_url ? '' : 'display:none;'; ?>"><?php esc_html_e('Remove Image', '_themename-_pluginname'); ?></a>
+                </p>
+            </td>
+        </tr>
+    <?php
+}
+add_action('_themename_product_category_edit_form_fields', '_themename_product_category_edit_form_fields');
+
+/*
+ * Save the image ID when a term is created or edited.
+ */
+function _themename_save_product_category_image($term_id)
+{
+    if (isset($_POST['term_image_id'])) {
+        $image_id = absint($_POST['term_image_id']);
+        update_term_meta($term_id, 'term_image_id', $image_id);
+    }
+}
+add_action('created__themename_product_category', '_themename_save_product_category_image');
+add_action('edited__themename_product_category', '_themename_save_product_category_image');
+
+/*
+ * Enqueue the script for the media uploader.
+ */
+function _themename_enqueue_taxonomy_scripts($hook)
+{
+    if ('edit-tags.php' !== $hook && 'term.php' !== $hook) {
+        return;
+    }
+
+    if (isset($_GET['taxonomy']) && $_GET['taxonomy'] === '_themename_product_category') {
+        wp_enqueue_media();
+        wp_enqueue_script('custom-taxonomy-image', plugin_dir_url(__FILE__) . '../dist/assets/js/taxonomy-image.js', array('jquery'), null, true);
+    }
+}
+add_action('admin_enqueue_scripts', '_themename_enqueue_taxonomy_scripts');
+
+function _themename_add_taxonomy_image_column($columns)
+{
+    // Add the 'Image' column after the 'Name' column.
+    $new_columns = array();
+    foreach ($columns as $key => $value) {
+        $new_columns[$key] = $value;
+        if ($key === 'name') {
+            $new_columns['_themename_product_category_image'] = esc_html__('Image', '_themename-_pluginname');
+        }
+    }
+    return $new_columns;
+}
+add_filter('manage_edit-_themename_product_category_columns', '_themename_add_taxonomy_image_column');
+
+function _themename_show_taxonomy_image_column($content, $column_name, $term_id)
+{
+    if ('_themename_product_category_image' === $column_name) {
+        $image_id = get_term_meta($term_id, 'term_image_id', true);
+        if ($image_id) {
+            $image_url = wp_get_attachment_image_url($image_id, 'thumbnail'); // 'thumbnail' is a standard WordPress image size.
+            if ($image_url) {
+                $content = '<img src="' . esc_url($image_url) . '" alt="" style="max-width: 50px; height: auto;" />';
+            }
+        }
+    }
+    return $content;
+}
+add_action('manage__themename_product_category_custom_column', '_themename_show_taxonomy_image_column', 10, 3);

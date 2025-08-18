@@ -6,7 +6,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-16 10:22+0000\n"
+"POT-Creation-Date: 2025-08-18 10:04+0000\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
 "X-Poedit-SearchPath-0: .\n"
@@ -14,208 +14,218 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: includes/portfolio-post-type.php:5
+#: includes/product-category-tax.php:5
+msgctxt "Taxonomy General Name"
+msgid "Categories"
+msgstr ""
+
+#: includes/product-category-tax.php:6
+msgctxt "Taxonomy Singular Name"
+msgid "Category"
+msgstr ""
+
+#: includes/product-category-tax.php:7
+msgid "Categories"
+msgstr ""
+
+#: includes/product-category-tax.php:8, includes/product-category-tax.php:101
+msgid "All Categories"
+msgstr ""
+
+#: includes/product-category-tax.php:9, includes/product-category-tax.php:123, includes/product-category-tax.php:133
+msgid "Parent Category"
+msgstr ""
+
+#: includes/product-category-tax.php:10
+msgid "Parent Category:"
+msgstr ""
+
+#: includes/product-category-tax.php:11
+msgid "New Category Name"
+msgstr ""
+
+#: includes/product-category-tax.php:12, includes/product-category-tax.php:121, includes/product-category-tax.php:136
+msgid "Add New Category"
+msgstr ""
+
+#: includes/product-category-tax.php:13
+msgid "Edit Category"
+msgstr ""
+
+#: includes/product-category-tax.php:14
+msgid "Update Category"
+msgstr ""
+
+#: includes/product-category-tax.php:15
+msgid "View Category"
+msgstr ""
+
+#: includes/product-category-tax.php:16
+msgid "Separate categories with commas"
+msgstr ""
+
+#: includes/product-category-tax.php:17
+msgid "Add or remove categories"
+msgstr ""
+
+#: includes/product-category-tax.php:18
+msgid "Choose from the most used"
+msgstr ""
+
+#: includes/product-category-tax.php:19
+msgid "Popular Categories"
+msgstr ""
+
+#: includes/product-category-tax.php:20
+msgid "Search Categories"
+msgstr ""
+
+#: includes/product-category-tax.php:21
+msgid "Not Found"
+msgstr ""
+
+#: includes/product-category-tax.php:22
+msgid "No categories"
+msgstr ""
+
+#: includes/product-category-tax.php:23
+msgid "Categories list"
+msgstr ""
+
+#: includes/product-category-tax.php:24
+msgid "Categories list navigation"
+msgstr ""
+
+#: includes/product-category-tax.php:59
+msgid "Product Categories"
+msgstr ""
+
+#: includes/product-category-tax.php:117
+msgid "+ Add New Category"
+msgstr ""
+
+#: includes/product-category-tax.php:432, includes/product-category-tax.php:453
+msgid "Category Image"
+msgstr ""
+
+#: includes/product-category-tax.php:436, includes/product-category-tax.php:462
+msgid "Upload/Add Image"
+msgstr ""
+
+#: includes/product-category-tax.php:437, includes/product-category-tax.php:463
+msgid "Remove Image"
+msgstr ""
+
+#: includes/product-post-type.php:5
 msgctxt "Post type general name"
-msgid "Portfolio"
+msgid "Products"
 msgstr ""
 
-#: includes/portfolio-post-type.php:6
+#: includes/product-post-type.php:6
 msgctxt "Post type singular name"
-msgid "Portfolio Item"
+msgid "Product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:7
+#: includes/product-post-type.php:7
 msgctxt "Admin Menu text"
-msgid "Portfolio"
+msgid "Products"
 msgstr ""
 
-#: includes/portfolio-post-type.php:8
+#: includes/product-post-type.php:8
 msgctxt "Add New on Toolbar"
-msgid "Portfolio Item"
+msgid "Product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:9
+#: includes/product-post-type.php:9
 msgid "Add New"
 msgstr ""
 
-#: includes/portfolio-post-type.php:10
-msgid "Add New Portfolio Item"
+#: includes/product-post-type.php:10
+msgid "Add New Product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:11
-msgid "New Portfolio Item"
+#: includes/product-post-type.php:11
+msgid "New Product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:12
-msgid "Edit Portfolio Item"
+#: includes/product-post-type.php:12
+msgid "Edit Product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:13
-msgid "View Portfolio Item"
+#: includes/product-post-type.php:13
+msgid "View Product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:14
-msgid "View Portfolio Items"
+#: includes/product-post-type.php:14
+msgid "View Products"
 msgstr ""
 
-#: includes/portfolio-post-type.php:15
-msgid "All Portfolio Items"
+#: includes/product-post-type.php:15
+msgid "All Products"
 msgstr ""
 
-#: includes/portfolio-post-type.php:16
-msgid "Search Portfolio Items"
+#: includes/product-post-type.php:16
+msgid "Search Products"
 msgstr ""
 
-#: includes/portfolio-post-type.php:17
-msgid "Parent Portfolio Items:"
+#: includes/product-post-type.php:17
+msgid "Parent Products:"
 msgstr ""
 
-#: includes/portfolio-post-type.php:18
-msgid "No Portfolio Items found."
+#: includes/product-post-type.php:18
+msgid "No Products found."
 msgstr ""
 
-#: includes/portfolio-post-type.php:19
-msgid "No Portfolio Items found in Trash."
+#: includes/product-post-type.php:19
+msgid "No Products found in Trash."
 msgstr ""
 
-#: includes/portfolio-post-type.php:20
+#: includes/product-post-type.php:20
 msgctxt "Overrides the \"Featured Image\" phrase for this post type. Added in 4.3"
-msgid "Portfolio Item Image"
+msgid "Product Image"
 msgstr ""
 
-#: includes/portfolio-post-type.php:21
+#: includes/product-post-type.php:21
 msgctxt "Overrides the \"Set featured image\" phrase for this post type. Added in 4.3"
-msgid "Set portfolio item image"
+msgid "Set product image"
 msgstr ""
 
-#: includes/portfolio-post-type.php:22
+#: includes/product-post-type.php:22
 msgctxt "Overrides the \"Remove featured image\" phrase for this post type. Added in 4.3"
-msgid "Remove portfolio item image"
+msgid "Remove product image"
 msgstr ""
 
-#: includes/portfolio-post-type.php:23
+#: includes/product-post-type.php:23
 msgctxt "Overrides the \"Use as featured image\" phrase for this post type. Added in 4.3"
-msgid "Use as portfolio item image"
+msgid "Use as product image"
 msgstr ""
 
-#: includes/portfolio-post-type.php:24
+#: includes/product-post-type.php:24
 msgctxt "The post type archive label used in nav menus. Default \"Post Archives\". Added in 4.4."
-msgid "Portfolio archives"
+msgid "Product archives"
 msgstr ""
 
-#: includes/portfolio-post-type.php:25
+#: includes/product-post-type.php:25
 msgctxt "Overrides the \"Insert into post\"/\"Insert into page\" phrase (used when inserting media into a post). Added in 4.4."
-msgid "Insert into portfolio item"
+msgid "Insert into product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:26
+#: includes/product-post-type.php:26
 msgctxt "Overrides the \"Uploaded to this post\"/\"Uploaded to this page\" phrase (used when viewing media attached to a post). Added in 4.4."
-msgid "Uploaded to this portfolio item"
+msgid "Uploaded to this product"
 msgstr ""
 
-#: includes/portfolio-post-type.php:27
+#: includes/product-post-type.php:27
 msgctxt "Screen reader text for the filter links heading on the post type listing screen. Default \"Filter posts list\"/\"Filter pages list\". Added in 4.4."
-msgid "Filter portfolio items list"
+msgid "Filter product list"
 msgstr ""
 
-#: includes/portfolio-post-type.php:28
+#: includes/product-post-type.php:28
 msgctxt "Screen reader text for the pagination heading on the post type listing screen. Default \"Posts list navigation\"/\"Pages list navigation\". Added in 4.4."
-msgid "Portfolio items list navigation"
+msgid "Product list navigation"
 msgstr ""
 
-#: includes/portfolio-post-type.php:29
+#: includes/product-post-type.php:29
 msgctxt "Screen reader text for the items list heading on the post type listing screen. Default \"Posts list\"/\"Pages list\". Added in 4.4."
-msgid "Portfolio items list"
-msgstr ""
-
-#: includes/project-type-tax.php:5
-msgctxt "taxonomy general name"
-msgid "Project Type"
-msgstr ""
-
-#: includes/project-type-tax.php:6
-msgctxt "taxonomy singular name"
-msgid "Project Type"
-msgstr ""
-
-#: includes/project-type-tax.php:7
-msgid "Search Project Types"
-msgstr ""
-
-#: includes/project-type-tax.php:8
-msgid "All Project Types"
-msgstr ""
-
-#: includes/project-type-tax.php:9
-msgid "Parent Project Type"
-msgstr ""
-
-#: includes/project-type-tax.php:10
-msgid "Parent Project Type:"
-msgstr ""
-
-#: includes/project-type-tax.php:11
-msgid "Edit Project Type"
-msgstr ""
-
-#: includes/project-type-tax.php:12
-msgid "Update Project Type"
-msgstr ""
-
-#: includes/project-type-tax.php:13
-msgid "Add New Project Type"
-msgstr ""
-
-#: includes/project-type-tax.php:14
-msgid "New Project Type Name"
-msgstr ""
-
-#: includes/project-type-tax.php:15
-msgid "Project Types"
-msgstr ""
-
-#: includes/skills-tax.php:5
-msgctxt "taxonomy general name"
-msgid "Skills"
-msgstr ""
-
-#: includes/skills-tax.php:6
-msgctxt "taxonomy singular name"
-msgid "Skill"
-msgstr ""
-
-#: includes/skills-tax.php:7
-msgid "Search Skills"
-msgstr ""
-
-#: includes/skills-tax.php:8
-msgid "All Skills"
-msgstr ""
-
-#: includes/skills-tax.php:9
-msgid "Parent Skill"
-msgstr ""
-
-#: includes/skills-tax.php:10
-msgid "Parent Skill:"
-msgstr ""
-
-#: includes/skills-tax.php:11
-msgid "Edit Skill"
-msgstr ""
-
-#: includes/skills-tax.php:12
-msgid "Update Skill"
-msgstr ""
-
-#: includes/skills-tax.php:13
-msgid "Add New Skill"
-msgstr ""
-
-#: includes/skills-tax.php:14
-msgid "New Skill Name"
-msgstr ""
-
-#: includes/skills-tax.php:15
-msgid "Skills"
+msgid "Product list"
 msgstr ""
