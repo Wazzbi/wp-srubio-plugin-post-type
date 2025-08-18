@@ -543,3 +543,13 @@ function _themename_show_taxonomy_image_column($content, $column_name, $term_id)
     return $content;
 }
 add_action('manage__themename_product_category_custom_column', '_themename_show_taxonomy_image_column', 10, 3);
+
+// Example: Get the term image in your template
+// $term = get_queried_object();
+// if ($term && is_tax('_themename_product_category')) {
+//     $image_id = get_term_meta($term->term_id, 'term_image_id', true);
+//     if ($image_id) {
+//         $image_url = wp_get_attachment_url($image_id);
+//         echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($term->name) . '" />';
+//     }
+// }
