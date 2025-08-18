@@ -117,12 +117,11 @@ function _themename_product_category_metabox_callback($post)
                     <?php esc_html_e('+ Add New Category', '_themename-_pluginname'); ?>
                 </a>
             </h4>
-            <p id="<?php echo esc_attr('_themename_product_category'); ?>-add" class="category-add" style="display: none;">
+            <div id="<?php echo esc_attr('_themename_product_category'); ?>-add" class="category-add" style="display: none;">
                 <label class="screen-reader-text" for="new_<?php echo esc_attr('_themename_product_category'); ?>"><?php esc_html_e('Add New Category', '_themename-_pluginname'); ?></label>
                 <input type="text" name="new_<?php echo esc_attr('_themename_product_category'); ?>" id="new_<?php echo esc_attr('_themename_product_category'); ?>" class="form-required form-input-tip" value="" aria-required="true" />
                 <label class="screen-reader-text" for="new_<?php echo esc_attr('_themename_product_category'); ?>_parent"><?php esc_html_e('Parent Category', '_themename-_pluginname'); ?></label>
                 <?php
-                // Dropdown to select a parent term.
                 wp_dropdown_categories(array(
                     'taxonomy'         => '_themename_product_category',
                     'hide_empty'       => 0,
@@ -133,23 +132,31 @@ function _themename_product_category_metabox_callback($post)
                     'show_option_none' => '&mdash; ' . esc_html__('Parent Category', '_themename-_pluginname') . ' &mdash;',
                 ));
                 ?>
+                <div class="form-field term-image-wrap">
+                    <input type="hidden" id="new_term_image_id" name="new_term_image_id" value="">
+                    <div id="new_term_image_preview"></div>
+                    <p>
+                        <a href="#" class="button button-secondary upload_image_button"><?php esc_html_e('Upload/Add Image', '_themename-_pluginname'); ?></a>
+                        <a href="#" class="button button-secondary remove_image_button" style="display:none;"><?php esc_html_e('Remove Image', '_themename-_pluginname'); ?></a>
+                    </p>
+                </div>
                 <input type="button" id="<?php echo esc_attr('_themename_product_category'); ?>-add-submit" class="button category-add-submit" value="<?php esc_html_e('Add New Category', '_themename-_pluginname'); ?>">
                 <?php wp_nonce_field('add-taxonomy', '_ajax_nonce', false); ?>
                 <span id="ajax-response"></span>
-            </p>
+            </div>
         </div>
     </div>
     <script>
         jQuery(document).ready(function($) {
             // Toggle the 'Add New Category' form
-            $('#<?php echo esc_attr('_themename_product_category'); ?>-add-toggle').on('click', function(event) {
+            $('#_themename_product_category-add-toggle').on('click', function(event) {
                 event.preventDefault();
-                $('#<?php echo esc_attr('_themename_product_category'); ?>-add').toggle();
-                $('#new_<?php echo esc_attr('_themename_product_category'); ?>').focus();
+                $('#_themename_product_category-add').toggle();
+                $('#new__themename_product_category').focus();
             });
 
             // Handle the tab clicks
-            $('#<?php echo esc_attr('_themename_product_category'); ?>-tabs a').on('click', function(event) {
+            $('#_themename_product_category-tabs a').on('click', function(event) {
                 event.preventDefault();
                 var target = $(this).attr('href');
                 var tabs = $(this).closest('.category-tabs');
@@ -162,10 +169,9 @@ function _themename_product_category_metabox_callback($post)
                 $(target).show();
             });
 
-            $('#<?php echo esc_attr('_themename_product_category'); ?>checklist').on('change', 'input[type="checkbox"]', function() {
+            // Check the parents if a child checkbox is checked
+            $('#_themename_product_categorychecklist').on('change', 'input[type="checkbox"]', function() {
                 var $checkbox = $(this);
-
-                // Check the parents if a child checkbox is checked
                 if ($checkbox.is(':checked')) {
                     var $parentLi = $checkbox.closest('li').parent().closest('li');
                     while ($parentLi.length) {
@@ -176,30 +182,50 @@ function _themename_product_category_metabox_callback($post)
                 }
             });
 
-            $('#<?php echo esc_attr('_themename_product_category'); ?>checklist').on('change', 'input[type="checkbox"]', function() {
+            // Uncheck all children if a parent checkbox is unchecked
+            $('#_themename_product_categorychecklist').on('change', 'input[type="checkbox"]', function() {
                 var $checkbox = $(this);
-                var term_id = $checkbox.val();
                 var $li = $checkbox.closest('li');
 
-                // Check the parents if a child checkbox is checked
-                if ($checkbox.is(':checked')) {
-                    var $parentLi = $li.parent().closest('li');
-                    while ($parentLi.length) {
-                        $parentLi.find('input[type="checkbox"]:first').prop('checked', true);
-                        $parentLi = $parentLi.parent().closest('li');
-                    }
-                } else {
-                    // Uncheck all children if a parent checkbox is unchecked
+                if (!$checkbox.is(':checked')) {
                     $li.find('ul input[type="checkbox"]').prop('checked', false);
                 }
             });
 
+            // Handle the image upload button click
+            $('#_themename_product_category-adder').on('click', '.upload_image_button', function(e) {
+                e.preventDefault();
+                var button = $(this);
+                var custom_uploader = wp.media({
+                    title: 'Select Category Image',
+                    button: {
+                        text: 'Use this image'
+                    },
+                    multiple: false
+                }).on('select', function() {
+                    var attachment = custom_uploader.state().get('selection').first().toJSON();
+                    $('#new_term_image_id').val(attachment.id);
+                    $('#new_term_image_preview').html('<img src="' + attachment.url + '" style="max-width:150px; height:auto;">');
+                    button.next('.remove_image_button').show();
+                }).open();
+            });
+
+            // Handle the image removal button click
+            $('#_themename_product_category-adder').on('click', '.remove_image_button', function(e) {
+                e.preventDefault();
+                var button = $(this);
+                $('#new_term_image_id').val('');
+                $('#new_term_image_preview').html('');
+                button.hide();
+            });
+
             // Handle adding a new category via AJAX
-            $('#<?php echo esc_attr('_themename_product_category'); ?>-add-submit').on('click', function(event) {
+            $('#_themename_product_category-add-submit').on('click', function(event) {
                 event.preventDefault();
 
-                var newTermInput = $('#new_<?php echo esc_attr('_themename_product_category'); ?>');
+                var newTermInput = $('#new__themename_product_category');
                 var parentTermInput = $('#new_parent_id');
+                var imageIdInput = $('#new_term_image_id');
                 var nonceInput = $('input[name="_ajax_nonce"]');
                 var submitButton = $(this);
                 var spinner = $('#ajax-response');
@@ -220,66 +246,52 @@ function _themename_product_category_metabox_callback($post)
                     data: {
                         action: 'add_product_category_ajax',
                         _ajax_nonce: nonceInput.val(),
-                        taxonomy: '<?php echo esc_attr('_themename_product_category'); ?>',
+                        taxonomy: '_themename_product_category',
                         term_name: newTermInput.val(),
-                        parent_id: parentTermInput.val()
+                        parent_id: parentTermInput.val(),
+                        image_id: imageIdInput.val() // Send the image ID
                     },
                     success: function(response) {
                         if (response.success) {
-                            // Get the newly created term's data
                             var newTermId = response.data.term_id;
                             var newTermName = response.data.term_name;
                             var newTermParentId = parseInt(response.data.parent_id, 10);
-                            var newTermDepth = 0; // We need to calculate this from the response if we were to render properly
-
-                            // Find the depth of the parent term to calculate indentation
-                            if (newTermParentId !== 0) {
-                                var parentLi = $('#term-' + newTermParentId);
-                                var parentDepth = parentLi.find('label').get(0).childNodes.length - 1;
-                                newTermDepth = parentDepth + 1;
-                            }
 
                             var newListItem = '<li id="term-' + newTermId + '">' +
                                 '<label class="selectit">' +
-                                '<input value="' + newTermId + '" type="checkbox" name="tax_input[<?php echo esc_attr('_themename_product_category'); ?>][]" ' +
-                                'id="in-<?php echo esc_attr('_themename_product_category'); ?>-' + newTermId + '" checked="checked" /> ' +
+                                '<input value="' + newTermId + '" type="checkbox" name="tax_input[_themename_product_category][]" ' +
+                                'id="in-_themename_product_category-' + newTermId + '" checked="checked" /> ' +
                                 newTermName + '</label></li>';
 
                             if (newTermParentId === 0) {
-                                // Append to the main list if it's a top-level term
-                                $('#<?php echo esc_attr('_themename_product_category'); ?>checklist').append(newListItem);
+                                $('#_themename_product_categorychecklist').append(newListItem);
                             } else {
-                                // Find the parent list item
                                 var parentLi = $('#term-' + newTermParentId);
                                 var parentUl = parentLi.find('ul:first');
-
-                                // If a nested UL doesn't exist, create it
                                 if (parentUl.length === 0) {
                                     parentUl = $('<ul class="children"></ul>');
                                     parentLi.append(parentUl);
                                 }
-
-                                // Append the new list item to the parent's UL
                                 parentUl.append(newListItem);
                             }
 
-                            // Add the highlight and fade effect
                             var newTermLi = $('#term-' + newTermId);
-                            newTermLi.css('background-color', '#ffffa1ff'); // A light yellow similar to WordPress
+                            newTermLi.css('background-color', '#ffffa1ff');
                             newTermLi.animate({
                                 'background-color': 'transparent'
                             }, 2000, function() {
-                                $(this).css('background-color', ''); // Remove the inline style after animation
+                                $(this).css('background-color', '');
                             });
 
-                            // Clear the form and reset the button
                             newTermInput.val('');
                             parentTermInput.val('-1');
+                            imageIdInput.val('');
+                            $('#new_term_image_preview').html('');
+                            $('.remove_image_button').hide();
                             submitButton.prop('disabled', false);
-                            $('#new_<?php echo esc_attr('_themename_product_category'); ?>').focus();
+                            newTermInput.focus();
                             spinner.html('');
                         } else {
-                            // Display error message
                             spinner.html('<p class="error">' + response.data.message + '</p>');
                             submitButton.prop('disabled', false);
                         }
@@ -360,23 +372,29 @@ function _themename_add_product_category_ajax()
     $taxonomy = sanitize_text_field($_POST['taxonomy']);
     $term_name = sanitize_text_field($_POST['term_name']);
     $parent_id = intval($_POST['parent_id']);
+    $image_id = isset($_POST['image_id']) ? absint($_POST['image_id']) : 0; // Get the image ID
 
-    // Check if the taxonomy exists and the term name is not empty.
     if (!taxonomy_exists($taxonomy) || empty($term_name)) {
         wp_send_json_error(array('message' => 'Invalid data provided.'));
     }
 
-    // Insert the new term.
     $result = wp_insert_term($term_name, $taxonomy, array('parent' => $parent_id));
 
     if (is_wp_error($result)) {
         wp_send_json_error(array('message' => $result->get_error_message()));
     } else {
-        // Send a success response with the new term's data.
+        $term_id = $result['term_id'];
+
+        // Save the image ID as term meta.
+        if ($image_id) {
+            update_term_meta($term_id, 'term_image_id', $image_id);
+        }
+
         wp_send_json_success(array(
-            'term_id' => $result['term_id'],
+            'term_id' => $term_id,
             'term_name' => $term_name,
             'parent_id' => $parent_id,
+            'image_id' => $image_id, // Include image ID in response if needed for later client-side rendering
         ));
     }
 }
