@@ -32,7 +32,7 @@ function _themename__pluginname_register_product_category_tax()
         'show_admin_column'          => true,
         'show_in_nav_menus'          => true,
         'show_tagcloud'              => true,
-        'rewrite' => array('slug' => 'catalog')
+        'rewrite' => array('slug' => 'catalog', 'hierarchical' => true)
     );
     register_taxonomy('_themename_product_category', ['_themename_product'], $args);
 };
@@ -553,3 +553,42 @@ add_action('manage__themename_product_category_custom_column', '_themename_show_
 //         echo '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($term->name) . '" />';
 //     }
 // }
+
+function _themename_pluginname_catalog_root_redirect()
+{
+    // Check if the current request is a 404 and the URL contains '/catalog/'
+    if (is_404() && strpos($_SERVER['REQUEST_URI'], '/catalog/') !== false) {
+
+        // This line is crucial for SEO: it changes the HTTP status code
+        status_header(200);
+
+        // All your existing code to handle the query and template goes here
+        $all_terms = get_terms(array(
+            'taxonomy'   => '_themename_product_category',
+            'hide_empty' => false,
+            'fields'     => 'slugs',
+        ));
+
+        $query_args = array(
+            'post_type'      => '_themename_product',
+            'posts_per_page' => -1,
+            'tax_query'      => array(
+                array(
+                    'taxonomy' => '_themename_product_category',
+                    'field'    => 'slug',
+                    'terms'    => $all_terms,
+                ),
+            ),
+        );
+
+        query_posts($query_args);
+
+        $template = get_template_directory() . '/taxonomy-_themename_product_category.php';
+        if (file_exists($template)) {
+            include $template;
+        }
+
+        exit;
+    }
+}
+add_action('template_redirect', '_themename_pluginname_catalog_root_redirect');
