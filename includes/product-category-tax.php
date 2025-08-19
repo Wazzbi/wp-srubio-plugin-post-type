@@ -559,29 +559,26 @@ function _themename_pluginname_catalog_root_redirect()
     // Check if the current request is a 404 and the URL contains '/catalog/'
     if (is_404() && strpos($_SERVER['REQUEST_URI'], '/catalog/') !== false) {
 
-        // This line is crucial for SEO: it changes the HTTP status code
+        // Set the HTTP status code to 200 (OK)
         status_header(200);
 
-        // All your existing code to handle the query and template goes here
-        $all_terms = get_terms(array(
+        // Get the top-level terms (terms with parent = 0)
+        $top_level_terms = get_terms(array(
             'taxonomy'   => '_themename_product_category',
-            'hide_empty' => false,
-            'fields'     => 'slugs',
+            'parent'     => 0, // This is the key change
+            'hide_empty' => true,
         ));
 
-        $query_args = array(
-            'post_type'      => '_themename_product',
-            'posts_per_page' => -1,
-            'tax_query'      => array(
-                array(
-                    'taxonomy' => '_themename_product_category',
-                    'field'    => 'slug',
-                    'terms'    => $all_terms,
-                ),
-            ),
-        );
+        // Create a global variable to pass the terms to the template
+        global $custom_terms;
+        $custom_terms = $top_level_terms;
 
-        query_posts($query_args);
+        // This is necessary to make the taxonomy template work without a query loop
+        // It provides the context that a taxonomy page is being viewed
+        global $wp_query;
+        $wp_query = new WP_Query(array('post_type' => '_themename_product'));
+        $wp_query->is_tax = true;
+        $wp_query->is_archive = true;
 
         $template = get_template_directory() . '/taxonomy-_themename_product_category.php';
         if (file_exists($template)) {
