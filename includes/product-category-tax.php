@@ -554,38 +554,39 @@ add_action('manage__themename_product_category_custom_column', '_themename_show_
 //     }
 // }
 
-function _themename_pluginname_catalog_root_redirect()
-{
-    // Check if the current request is a 404 and the URL contains '/catalog/'
-    if (is_404() && strpos($_SERVER['REQUEST_URI'], '/catalog/') !== false) {
+// ----- Redirect /catalog/ to show top-level categories NOT NEEDED SINCE YOUAST SEO PLUGIN ----- //
+// function _themename_pluginname_catalog_root_redirect()
+// {
+//     // Check if the current request is a 404 and the URL contains '/catalog/'
+//     if (is_404() && strpos($_SERVER['REQUEST_URI'], '/catalog/') !== false) {
 
-        // Set the HTTP status code to 200 (OK)
-        status_header(200);
+//         // Set the HTTP status code to 200 (OK)
+//         status_header(200);
 
-        // Get the top-level terms (terms with parent = 0)
-        $top_level_terms = get_terms(array(
-            'taxonomy'   => '_themename_product_category',
-            'parent'     => 0, // This is the key change
-            'hide_empty' => true,
-        ));
+//         // Get the top-level terms (terms with parent = 0)
+//         $top_level_terms = get_terms(array(
+//             'taxonomy'   => '_themename_product_category',
+//             'parent'     => 0, // This is the key change
+//             'hide_empty' => true,
+//         ));
 
-        // Create a global variable to pass the terms to the template
-        global $custom_terms;
-        $custom_terms = $top_level_terms;
+//         // Create a global variable to pass the terms to the template
+//         global $custom_terms;
+//         $custom_terms = $top_level_terms;
 
-        // This is necessary to make the taxonomy template work without a query loop
-        // It provides the context that a taxonomy page is being viewed
-        global $wp_query;
-        $wp_query = new WP_Query(array('post_type' => '_themename_product'));
-        $wp_query->is_tax = true;
-        $wp_query->is_archive = true;
+//         // This is necessary to make the taxonomy template work without a query loop
+//         // It provides the context that a taxonomy page is being viewed
+//         global $wp_query;
+//         $wp_query = new WP_Query(array('post_type' => '_themename_product'));
+//         $wp_query->is_tax = true;
+//         $wp_query->is_archive = true;
 
-        $template = get_template_directory() . '/taxonomy-_themename_product_category.php';
-        if (file_exists($template)) {
-            include $template;
-        }
+//         $template = get_template_directory() . '/taxonomy-_themename_product_category.php';
+//         if (file_exists($template)) {
+//             include $template;
+//         }
 
-        exit;
-    }
-}
-add_action('template_redirect', '_themename_pluginname_catalog_root_redirect');
+//         exit;
+//     }
+// }
+// add_action('template_redirect', '_themename_pluginname_catalog_root_redirect');
