@@ -34,7 +34,7 @@ function _themename__pluginname_setup_post_type()
         'has_archive' => true,
         'menu_icon' => 'dashicons-cart',
         'labels' => $labels,
-        'supports' => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments'),
+        'supports' => array('title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields'),
         'rewrite' => array('slug' => 'products')
     ));
 };
