@@ -2,9 +2,9 @@
 function _themename__pluginname_setup_post_type()
 {
     $labels = array(
-        'name' => esc_html_x('Products', 'Post type general name', '_themename-_pluginname'),
+        'name' => esc_html_x('Catalog', 'Post type general name', '_themename-_pluginname'),
         'singular_name' => esc_html_x('Product', 'Post type singular name', '_themename-_pluginname'),
-        'menu_name' => esc_html_x('Products', 'Admin Menu text', '_themename-_pluginname'),
+        'menu_name' => esc_html_x('Catalog', 'Admin Menu text', '_themename-_pluginname'),
         'name_admin_bar' => esc_html_x('Product', 'Add New on Toolbar', '_themename-_pluginname'),
         'add_new' => esc_html__('Add New', '_themename-_pluginname'),
         'add_new_item' => esc_html__('Add New Product', '_themename-_pluginname'),
