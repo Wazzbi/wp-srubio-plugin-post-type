@@ -1,6 +1,6 @@
 {
   "name": "post_types",
-  "theme": "wp-optic",
+  "theme": "optic",
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
