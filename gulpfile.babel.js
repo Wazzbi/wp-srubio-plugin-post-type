@@ -174,7 +174,7 @@ export const pot = () => {
 //export theme zip file
 export const compress = (cb) => {
   gulp
-    .src(paths.package.src, { base: "../", encoding: false })
+    .src(paths.package.src, { base: "./", encoding: false })
     .pipe(replace("_pluginname", info.name))
     .pipe(replace("_themename", info.theme))
     .pipe(zip(`${info.theme}-${info.name}.zip`))
