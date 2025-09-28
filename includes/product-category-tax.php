@@ -540,22 +540,6 @@ function _themename_save_product_category_image($term_id)
 add_action('created__themename_product_category', '_themename_save_product_category_image');
 add_action('edited__themename_product_category', '_themename_save_product_category_image');
 
-/*
- * Enqueue the script for the media uploader.
- */
-function _themename_enqueue_taxonomy_scripts($hook)
-{
-    if ('edit-tags.php' !== $hook && 'term.php' !== $hook) {
-        return;
-    }
-
-    if (isset($_GET['taxonomy']) && $_GET['taxonomy'] === '_themename_product_category') {
-        wp_enqueue_media();
-        wp_enqueue_script('custom-taxonomy-image', plugin_dir_url(__FILE__) . '../dist/assets/js/taxonomy-image.js', array('jquery'), null, true);
-    }
-}
-add_action('admin_enqueue_scripts', '_themename_enqueue_taxonomy_scripts');
-
 function _themename_add_taxonomy_image_column($columns)
 {
     // Add the 'Image' column after the 'Name' column.

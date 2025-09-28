@@ -6,7 +6,7 @@ jQuery(document).ready(function ($) {
     var button = $(this);
     var custom_uploader = wp
       .media({
-        title: "Select Category Image",
+        title: "Select Image",
         button: {
           text: "Use this image",
         },
