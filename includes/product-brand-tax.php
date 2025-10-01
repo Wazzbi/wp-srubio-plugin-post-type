@@ -449,3 +449,176 @@ function _themename_add_product_brand_ajax()
     wp_die();
 }
 add_action('wp_ajax_add_product_brand_ajax', '_themename_add_product_brand_ajax');
+
+/**
+ * Add the custom Brand dropdown to the Quick Edit screen.
+ */
+function _themename_product_brand_quick_edit_custom_box($column_name, $post_type)
+{
+    // Check if we are on the correct post type and the column matches your taxonomy slug
+    $taxonomy_slug = '_themename_product_brand';
+    $post_type_slug = '_themename_product';
+    $custom_column_name = 'taxonomy-' . $taxonomy_slug; // The default taxonomy column key
+
+    if ($post_type !== $post_type_slug || $column_name !== $custom_column_name) {
+        return;
+    }
+
+    $terms = get_terms([
+        'taxonomy'   => $taxonomy_slug,
+        'hide_empty' => false,
+        'orderby'    => 'name',
+        'order'      => 'ASC',
+    ]);
+
+?>
+    <fieldset class="inline-edit-col-right inline-edit-<?php echo esc_attr($taxonomy_slug); ?>">
+        <div class="inline-edit-col">
+            <label class="inline-edit-group">
+                <span class="title"><?php esc_html_e('Brand', '_themename-_pluginname'); ?></span>
+                <select name="<?php echo esc_attr($taxonomy_slug); ?>_quick_edit_select" class="post_brand_select">
+                    <option value="-1"><?php esc_html_e('— No Brand —', '_themename-_pluginname'); ?></option>
+                    <?php
+                    // Display each term as an option
+                    foreach ($terms as $term) {
+                        printf(
+                            '<option value="%s">%s</option>',
+                            esc_attr($term->term_id),
+                            esc_html($term->name)
+                        );
+                    }
+                    ?>
+                </select>
+                <input type="hidden" name="old_brand_terms" class="old_brand_terms" data-wp-taxonomy="<?php echo esc_attr($taxonomy_slug); ?>" value="">
+            </label>
+        </div>
+    </fieldset>
+<?php
+}
+add_action('quick_edit_custom_box', '_themename_product_brand_quick_edit_custom_box', 1, 2);
+
+/**
+ * Collects all brand data for the displayed posts and injects it as a global JS object.
+ */
+function _themename_product_brand_inject_all_quick_edit_data()
+{
+    $screen = get_current_screen();
+    $taxonomy_slug = '_themename_product_brand';
+    $post_type_slug = '_themename_product';
+
+    // Only run on the correct post type list table.
+    if (!is_admin() || $screen->base !== 'edit' || $screen->post_type !== $post_type_slug) {
+        return;
+    }
+
+    $posts = get_posts(array(
+        'post_type'      => $post_type_slug,
+        'posts_per_page' => -1, // Retrieve all posts on the current page.
+        'fields'         => 'ids',
+        'paged'          => 1,
+        // CRITICAL: Use the same query arguments as the main post list query
+        'post_status'    => array('publish', 'pending', 'draft', 'future', 'private', 'trash'),
+        'suppress_filters' => false,
+    ));
+
+    $brand_data = array();
+
+    foreach ($posts as $post_id) {
+        $terms = wp_get_post_terms($post_id, $taxonomy_slug, array('fields' => 'ids'));
+        $term_id = !is_wp_error($terms) && !empty($terms) ? absint($terms[0]) : 0;
+
+        // Map Post ID to Brand ID
+        $brand_data[$post_id] = $term_id;
+    }
+
+    // Inject the JSON object into the footer
+    if (!empty($brand_data)) {
+        echo '<script type="text/javascript">';
+        echo 'var _themename_product_brand_data = ' . json_encode($brand_data) . ';';
+        echo '</script>';
+    }
+}
+// This hook runs in the footer, after the post loop has completed.
+add_action('admin_footer-edit.php', '_themename_product_brand_inject_all_quick_edit_data', 9);
+
+/**
+ * JavaScript to read the brand ID from the global data object and select the option.
+ */
+/**
+ * JavaScript to hide the default tag input and set the custom dropdown value.
+ */
+function _themename_product_brand_quick_edit_js()
+{
+    $taxonomy_slug = '_themename_product_brand';
+    $post_type_slug = '_themename_product';
+
+    if (get_current_screen()->post_type !== $post_type_slug) {
+        return;
+    }
+
+?>
+    <script type="text/javascript">
+        jQuery(function($) {
+            var taxonomy = '<?php echo esc_js($taxonomy_slug); ?>';
+            var default_tax_selector = 'textarea[data-wp-taxonomy="' + taxonomy + '"]';
+
+            // On Quick Edit click
+            $('#the-list').on('click', '.editinline', function() {
+                var $this = $(this),
+                    $tr = $this.closest('tr'),
+                    $editTr = $('#edit-' + $tr.attr('id').replace('post-', '')),
+
+                    // --- Custom Logic for Dropdown Selection (from previous answers) ---
+                    postId = $tr.attr('id').replace('post-', ''),
+                    $select = $editTr.find('select.post_brand_select'),
+                    $hiddenIdElement = $('#brand-data-' + postId);
+
+                // 1. CRITICAL: Hide the default WordPress tag input wrapper
+                $editTr.find(default_tax_selector).closest('.inline-edit-tags-wrap').hide();
+
+                // 2. Set the custom dropdown value (using the reliable global data)
+                if (typeof _themename_product_brand_data !== 'undefined') {
+                    var currentTermId = _themename_product_brand_data[postId];
+                    var selectedId = (currentTermId && currentTermId > 0) ? currentTermId.toString() : '-1';
+                    $select.val(selectedId);
+                }
+            });
+        });
+    </script>
+<?php
+}
+// Ensure this hook runs AFTER the global data injection script
+add_action('admin_footer-edit.php', '_themename_product_brand_quick_edit_js', 10);
+
+/**
+ * Save the single Brand term when the Quick Edit is submitted.
+ */
+function _themename_save_quick_edit_product_brand($post_id)
+{
+    $taxonomy_slug = '_themename_product_brand';
+    $input_name = $taxonomy_slug . '_quick_edit_select';
+
+    // 1. Check for quick edit context and permissions
+    if (!isset($_POST['_inline_edit'])) {
+        return;
+    }
+    if (!current_user_can('edit_post', $post_id) || wp_is_post_revision($post_id)) {
+        return;
+    }
+
+    // 2. Sanitize and validate the input
+    if (isset($_POST[$input_name])) {
+        $term_id = absint($_POST[$input_name]);
+
+        if ($term_id > 0) {
+            // Assign the single selected term
+            // The third argument (true) means to append/replace, but since it's an array 
+            // of one ID, it effectively replaces.
+            wp_set_post_terms($post_id, array($term_id), $taxonomy_slug);
+        } else {
+            // If '-1' (No Brand) is selected, remove all terms
+            wp_set_post_terms($post_id, array(), $taxonomy_slug);
+        }
+    }
+}
+add_action('save_post', '_themename_save_quick_edit_product_brand');
