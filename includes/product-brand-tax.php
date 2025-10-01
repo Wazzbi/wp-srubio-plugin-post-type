@@ -9,38 +9,38 @@ function _themename__pluginname_register_product_brand_tax()
 {
     // ... (Labels remain the same) ...
     $labels = array(
-        'name'                       => esc_html_x('Brands', 'Taxonomy General Name', '_themename-_pluginname'),
-        'singular_name'              => esc_html_x('Brand', 'Taxonomy Singular Name', '_themename-_pluginname'),
-        'menu_name'                  => esc_html__('Brands', '_themename-_pluginname'),
-        'all_items'                  => esc_html__('All Brands', '_themename-_pluginname'),
-        'edit_item'                  => esc_html__('Edit Brand', '_themename-_pluginname'),
-        'view_item'                  => esc_html__('View Brand', '_themename-_pluginname'),
-        'update_item'                => esc_html__('Update Brand', '_themename-_pluginname'),
-        'add_new_item'               => esc_html__('Add New Brand', '_themename-_pluginname'),
-        'new_item_name'              => esc_html__('New Brand Name', '_themename-_pluginname'),
-        'parent_item'                => null,
-        'parent_item_colon'          => null,
-        'search_items'               => esc_html__('Search Brands', '_themename-_pluginname'),
-        'popular_items'              => esc_html__('Popular Brands', '_themename-_pluginname'),
-        'separate_items_with_commas' => esc_html__('Separate brands with commas', '_themename-_pluginname'),
-        'add_or_remove_items'        => esc_html__('Add or remove brands', '_themename-_pluginname'),
-        'choose_from_most_used'      => esc_html__('Choose from the most used brands', '_themename-_pluginname'),
-        'not_found'                  => esc_html__('No Brands Found', '_themename-_pluginname'),
-        'no_terms'                   => esc_html__('No brands', '_themename-_pluginname'),
-        'items_list'                 => esc_html__('Brands list', '_themename-_pluginname'),
-        'items_list_navigation'      => esc_html__('Brands list navigation', '_themename-_pluginname'),
+        'name'                         => esc_html_x('Brands', 'Taxonomy General Name', '_themename-_pluginname'),
+        'singular_name'                => esc_html_x('Brand', 'Taxonomy Singular Name', '_themename-_pluginname'),
+        'menu_name'                    => esc_html__('Brands', '_themename-_pluginname'),
+        'all_items'                    => esc_html__('All Brands', '_themename-_pluginname'),
+        'edit_item'                    => esc_html__('Edit Brand', '_themename-_pluginname'),
+        'view_item'                    => esc_html__('View Brand', '_themename-_pluginname'),
+        'update_item'                  => esc_html__('Update Brand', '_themename-_pluginname'),
+        'add_new_item'                 => esc_html__('Add New Brand', '_themename-_pluginname'),
+        'new_item_name'                => esc_html__('New Brand Name', '_themename-_pluginname'),
+        'parent_item'                  => null,
+        'parent_item_colon'            => null,
+        'search_items'                 => esc_html__('Search Brands', '_themename-_pluginname'),
+        'popular_items'                => esc_html__('Popular Brands', '_themename-_pluginname'),
+        'separate_items_with_commas'   => esc_html__('Separate brands with commas', '_themename-_pluginname'),
+        'add_or_remove_items'          => esc_html__('Add or remove brands', '_themename-_pluginname'),
+        'choose_from_most_used'        => esc_html__('Choose from the most used brands', '_themename-_pluginname'),
+        'not_found'                    => esc_html__('No Brands Found', '_themename-_pluginname'),
+        'no_terms'                     => esc_html__('No brands', '_themename-_pluginname'),
+        'items_list'                   => esc_html__('Brands list', '_themename-_pluginname'),
+        'items_list_navigation'        => esc_html__('Brands list navigation', '_themename-_pluginname'),
     );
 
     $args = array(
-        'labels'                     => $labels,
-        'hierarchical'               => false,
-        'public'                     => true,
-        'show_ui'                    => true,
-        'show_admin_column'          => true,
-        'show_in_nav_menus'          => true,
-        'show_tagcloud'              => false,
-        'rewrite'                    => array('slug' => 'brand', 'hierarchical' => false),
-        'meta_box_cb'                => false,
+        'labels'                       => $labels,
+        'hierarchical'                 => false,
+        'public'                       => true,
+        'show_ui'                      => true,
+        'show_admin_column'            => true,
+        'show_in_nav_menus'            => true,
+        'show_tagcloud'                => false,
+        'rewrite'                      => array('slug' => 'brand', 'hierarchical' => false),
+        'meta_box_cb'                  => false,
     );
 
     register_taxonomy('_themename_product_brand', ['_themename_product'], $args);
@@ -161,10 +161,13 @@ add_action('add_meta_boxes', '_themename_custom_brand_metabox');
 
 /**
  * The callback function to display the radio button list and the Add New form.
+ * ⚠️ FIX APPLIED HERE: Changed the input name from 'tax_input[...]' to '_themename_product_brand_select'
  */
 function _themename_product_brand_metabox_callback($post)
 {
     $taxonomy_slug = '_themename_product_brand';
+    // Define the new custom input name for the radio group
+    $custom_input_name = '_themename_product_brand_select';
     $post_terms = wp_get_post_terms($post->ID, $taxonomy_slug, array('fields' => 'ids'));
     $selected_id = !is_wp_error($post_terms) && !empty($post_terms) ? $post_terms[0] : 0;
     $all_terms = get_terms(array(
@@ -187,7 +190,7 @@ function _themename_product_brand_metabox_callback($post)
                     <li id="term-<?php echo esc_attr($term->term_id); ?>">
                         <label class="selectit">
                             <input value="<?php echo esc_attr($term->term_id); ?>" type="radio"
-                                name="tax_input[<?php echo esc_attr($taxonomy_slug); ?>]"
+                                name="<?php echo esc_attr($custom_input_name); ?>" 👈 **FIXED: Changed name**
                                 id="in-<?php echo esc_attr($taxonomy_slug); ?>-<?php echo esc_attr($term->term_id); ?>"
                                 <?php checked($selected_id, $term->term_id); ?> />
                             <?php echo esc_html($term->name); ?>
@@ -197,7 +200,7 @@ function _themename_product_brand_metabox_callback($post)
                 <li>
                     <label class="selectit">
                         <input value="0" type="radio"
-                            name="tax_input[<?php echo esc_attr($taxonomy_slug); ?>]"
+                            name="<?php echo esc_attr($custom_input_name); ?>" 👈 **FIXED: Changed name**
                             id="in-<?php echo esc_attr($taxonomy_slug); ?>-0"
                             <?php checked(0, $selected_id); ?> />
                         <?php esc_html_e('— No Brand —', '_themename-_pluginname'); ?>
@@ -235,6 +238,7 @@ function _themename_product_brand_metabox_callback($post)
     <script>
         jQuery(document).ready(function($) {
             var taxonomy = '<?php echo esc_js($taxonomy_slug); ?>';
+            var custom_input_name = '<?php echo esc_js($custom_input_name); ?>'; // Use the new name
             var checklist = $('#' + taxonomy + 'checklist');
             var media_frame;
 
@@ -324,17 +328,19 @@ function _themename_product_brand_metabox_callback($post)
                             var newTermId = response.data.term_id;
                             var newTermName = response.data.term_name;
 
+                            // Note: We use custom_input_name here
                             var newListItem = '<li id="term-' + newTermId + '">' +
                                 '<label class="selectit">' +
-                                '<input value="' + newTermId + '" type="radio" name="tax_input[' + taxonomy + ']" ' +
+                                '<input value="' + newTermId + '" type="radio" name="' + custom_input_name + '" ' +
                                 'id="in-' + taxonomy + '-' + newTermId + '" checked="checked" /> ' +
                                 newTermName + '</label></li>';
 
                             checklist.append(newListItem);
 
-                            checklist.find('input[type="radio"]').not('#in-' + taxonomy + '-' + newTermId).prop('checked', false);
+                            // Selects the newly added radio button and deselects all others with the custom name
+                            checklist.find('input[name="' + custom_input_name + '"]').not('#in-' + taxonomy + '-' + newTermId).prop('checked', false);
 
-                            // 🚨 CORRECTED RESET LOGIC: Target the image fields using the form container
+                            // Reset logic
                             var $imageContainer = $('#' + taxonomy + '-adder');
                             $imageContainer.find('#new_brand_image_id').val('');
                             $imageContainer.find('#new_term_image_preview').html('');
@@ -367,11 +373,12 @@ function _themename_product_brand_metabox_callback($post)
 
 /**
  * Save the single term from the custom radio button brand metabox.
+ * ⚠️ FIX APPLIED HERE: Changed the key we look for in $_POST from 'tax_input[...]' to '_themename_product_brand_select'
  */
 function _themename_save_product_brand_metabox($post_id)
 {
-    // ... (This function remains unchanged as it handles post-save, not term-create) ...
     $taxonomy_slug = '_themename_product_brand';
+    $input_name = '_themename_product_brand_select'; // The new custom input name
 
     if (!current_user_can('edit_post', $post_id) || wp_is_post_revision($post_id)) {
         return;
@@ -381,12 +388,15 @@ function _themename_save_product_brand_metabox($post_id)
         return;
     }
 
-    if (isset($_POST['tax_input'][$taxonomy_slug])) {
-        $term_id = absint($_POST['tax_input'][$taxonomy_slug]);
+    // Check for the custom input name
+    if (isset($_POST[$input_name])) {
+        $term_id = absint($_POST[$input_name]);
 
         if ($term_id > 0) {
+            // Assign the single selected term by its ID
             wp_set_post_terms($post_id, array($term_id), $taxonomy_slug, false);
         } else {
+            // If '0' is selected (No Brand), remove all terms
             wp_set_post_terms($post_id, array(), $taxonomy_slug, false);
         }
     }
@@ -439,31 +449,3 @@ function _themename_add_product_brand_ajax()
     wp_die();
 }
 add_action('wp_ajax_add_product_brand_ajax', '_themename_add_product_brand_ajax');
-
-
-// // -----------------------------------------------------------------------------
-// // C. SCRIPTS (MUST LOAD MEDIA FRAMEWORK FOR AJAX)
-// // -----------------------------------------------------------------------------
-
-// /* Enqueue media script on product post edit screen. */
-// function _themename_enqueue_admin_media_globally($hook)
-// {
-//     // Check if we are on a Product (or new Product) editing page
-//     if ('post.php' === $hook || 'post-new.php' === $hook) {
-//         $post_type = get_post_type();
-        
-//         if ( '_themename_product' === $post_type ) {
-//             // CRITICAL: We need wp_enqueue_media() to load the media frame logic
-//             // so the JS inside the metabox works.
-//             wp_enqueue_media();
-//         }
-//     }
-//     // Also keep the original hooks for the term edit pages
-//     $allowed_screens = ['edit-tags.php', 'term.php'];
-//     if (in_array($hook, $allowed_screens) && isset($_GET['taxonomy']) && in_array($_GET['taxonomy'], ['_themename_product_category', '_themename_product_brand'])) {
-//         wp_enqueue_media();
-//         // Since the JS for the media buttons on the main term page is the same, we re-enqueue it here.
-//         wp_enqueue_script('custom-taxonomy-image', plugin_dir_url(__FILE__) . '../dist/assets/js/taxonomy-image.js', array('jquery'), null, true);
-//     }
-// }
-// add_action('admin_enqueue_scripts', '_themename_enqueue_admin_media_globally');
