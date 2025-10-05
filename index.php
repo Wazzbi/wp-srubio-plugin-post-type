@@ -3,7 +3,7 @@
 Plugin Name: _themename _pluginname
 Plugin URI:
 Description: Adding Custom Post Types for _themename
-Version: 1.0.0
+Version: 1.2
 Author: David Novotny
 Author URI:
 License:
