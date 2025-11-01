@@ -1,6 +1,6 @@
 {
   "name": "post_types",
-  "theme": "optic",
+  "theme": "srubio",
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
