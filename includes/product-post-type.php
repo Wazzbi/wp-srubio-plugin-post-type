@@ -39,3 +39,218 @@ function _themename__pluginname_setup_post_type()
     ));
 };
 add_action('init', '_themename__pluginname_setup_post_type');
+
+function _themename__pluginname_settings_post_type()
+{
+    add_submenu_page(
+        'edit.php?post_type=_themename_product', // Parent slug (your CPT)
+        'Nastavení společných prvků',              // Page title
+        'Settings',                         // Menu title
+        'manage_options',                   // Capability
+        '_themename__pluginname_settings',           // Menu slug
+        '_themename__pluginname_settings_page_html'       // Callback function to render the page
+    );
+}
+add_action('admin_menu', '_themename__pluginname_settings_post_type');
+
+/**
+ * Renders the content for the CPT Settings page.
+ */
+function _themename__pluginname_settings_page_html()
+{
+    // Check user capabilities
+    if (! current_user_can('manage_options')) {
+        return;
+    }
+
+    settings_errors();
+
+?>
+    <div class="wrap">
+        <h2><?php echo esc_html(get_admin_page_title()); ?></h2>
+        <form action="options.php" method="post">
+            <?php
+            // Security field and nonce for the form submission
+            settings_fields('_themename__pluginname_product_settings_group');
+
+            // Output all registered settings sections and fields
+            do_settings_sections('_themename__pluginname_settings');
+
+            // Submit button
+            submit_button('Save Settings');
+            ?>
+        </form>
+    </div>
+<?php
+}
+
+/**
+ * Registers CPT settings, sections, and fields.
+ */
+function _themename__pluginname_product_settings_init()
+{
+
+    // 1. Register a setting (a group of options to save)
+    // The '_themename__pluginname_product_options' is the option_name saved in the database.
+    register_setting(
+        '_themename__pluginname_product_settings_group', // Settings group name
+        '_themename__pluginname_product_options',      // Option name (will be a single array in wp_options)
+        '_themename__pluginname_product_sanitize'                   // Optional: Sanitize callback function
+
+    );
+
+    // 2. Add a settings section
+    add_settings_section(
+        '_themename__pluginname_section_general',         // ID of the section
+        'General Product Settings',                      // Title to display
+        '_themename__pluginname_section_general_callback', // Callback function to render section description
+        '_themename__pluginname_settings'                         // Page slug (from add_submenu_page)
+    );
+
+    // 3. Add a settings field (e.g., a checkbox for showing the price)
+    add_settings_field(
+        '_themename__pluginname_field_file_catalog',      // ID of the field
+        'Show Product Price',                          // Label of the field
+        '_themename__pluginname_field_file_catalog_html', // Callback function to render the input field HTML
+        '_themename__pluginname_settings',                      // Page slug (where section is added)
+        '_themename__pluginname_section_general',      // Section ID
+        array(                                         // Optional: Arguments passed to the callback
+            'label_for' => '_themename__pluginname_field_file_catalog',
+            'class'     => 'file-catalog-row',
+        )
+    );
+
+    add_settings_field(
+        '_themename__pluginname_field_file_price_list',      // ID of the field
+        'Show Product Price',                          // Label of the field
+        '_themename__pluginname_field_file_price_list_html', // Callback function to render the input field HTML
+        '_themename__pluginname_settings',                      // Page slug (where section is added)
+        '_themename__pluginname_section_general',      // Section ID
+        array(                                         // Optional: Arguments passed to the callback
+            'label_for' => '_themename__pluginname_field_file_price_list',
+            'class'     => 'file-price-list-row',
+        )
+    );
+
+    add_settings_field(
+        '_themename__pluginname_field_editor_content',           // **New Field ID**
+        'Global Product Content',                               // **New Label**
+        '_themename__pluginname_field_editor_content_html',      // **New Callback**
+        '_themename__pluginname_settings',
+        '_themename__pluginname_section_general',
+        array(
+            'label_for' => '_themename__pluginname_field_editor_content',
+            'class'     => 'editor-content-row',
+        )
+    );
+}
+add_action('admin_init', '_themename__pluginname_product_settings_init');
+
+/**
+ * Renders the section description.
+ */
+function _themename__pluginname_section_general_callback()
+{
+    echo '<p>Configure the general display settings for your products.</p>';
+}
+
+/**
+ * Sanitizes the input before saving to the database.
+ * @param array $input The unsanitized input array.
+ * @return array The sanitized array.
+ */
+function _themename__pluginname_product_sanitize($input)
+{
+    $new_input = array();
+
+    // Check if the custom text field exists and sanitize it
+    if (isset($input['_themename__pluginname_field_file_catalog'])) {
+        $new_input['_themename__pluginname_field_file_catalog'] = sanitize_text_field($input['_themename__pluginname_field_file_catalog']);
+    }
+
+    // Check if the custom text field exists and sanitize it
+    if (isset($input['_themename__pluginname_field_file_price_list'])) {
+        $new_input['_themename__pluginname_field_file_price_list'] = sanitize_text_field($input['_themename__pluginname_field_file_price_list']);
+    }
+
+    // Sanitize the Rich Text Editor content using wp_kses_post()
+    if (isset($input['_themename__pluginname_field_editor_content'])) {
+        $new_input['_themename__pluginname_field_editor_content'] = wp_kses_post($input['_themename__pluginname_field_editor_content']);
+    }
+
+    return $new_input;
+}
+
+/**
+ * Renders the HTML for the 'Show Product Price' checkbox field.
+ */
+function _themename__pluginname_field_file_catalog_html($args)
+{
+    // Retrieve the entire options array
+    $options = get_option('_themename__pluginname_product_options');
+
+    // Get the specific field value, default to 0 (unchecked) if not set
+    $value = isset($options['_themename__pluginname_field_file_catalog']) ? $options['_themename__pluginname_field_file_catalog'] : 0;
+
+?>
+    <input
+        type="text"
+        id="<?php echo esc_attr($args['label_for']); ?>"
+        name="_themename__pluginname_product_options[<?php echo esc_attr($args['label_for']); ?>]"
+        value="<?php echo esc_attr($value); ?>"
+        class="regular-text" />
+    <p class="description">Check this box to display the price on the product detail page.</p>
+<?php
+}
+
+/**
+ * Renders the HTML for the 'Show Product Price' checkbox field.
+ */
+function _themename__pluginname_field_file_price_list_html($args)
+{
+    // Retrieve the entire options array
+    $options = get_option('_themename__pluginname_product_options');
+
+    // Get the specific field value, default to 0 (unchecked) if not set
+    $value = isset($options['_themename__pluginname_field_file_price_list']) ? $options['_themename__pluginname_field_file_price_list'] : 0;
+
+?>
+    <input
+        type="text"
+        id="<?php echo esc_attr($args['label_for']); ?>"
+        name="_themename__pluginname_product_options[<?php echo esc_attr($args['label_for']); ?>]"
+        value="<?php echo esc_attr($value); ?>"
+        class="regular-text" />
+    <p class="description">Check this box to display the price on the product detail page.</p>
+<?php
+}
+
+/**
+ * Renders the HTML for the Rich Text Editor field using wp_editor().
+ */
+function _themename__pluginname_field_editor_content_html($args)
+{
+    // Retrieve the entire options array
+    $options = get_option('_themename__pluginname_product_options');
+
+    // Get the specific field value
+    $value = isset($options[$args['label_for']]) ? $options[$args['label_for']] : '';
+
+    // The name attribute needs to match the structure for saving:
+    $editor_name = '_themename__pluginname_product_options[' . esc_attr($args['label_for']) . ']';
+
+    // Settings for the editor (height, media buttons, etc.)
+    $settings = array(
+        'textarea_name' => $editor_name,
+        'textarea_rows' => 10,
+        'editor_class'  => 'rich-text-content',
+        'media_buttons' => true, // Allow media uploads
+    );
+
+    // Output the WordPress rich text editor
+    wp_editor($value, esc_attr($args['label_for']), $settings);
+
+?>
+    <p class="description">This content will be displayed globally on your product pages.</p>
+<?php
+}
