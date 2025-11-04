@@ -21,6 +21,7 @@ include_once('includes/product-post-type.php');
 // include_once('includes/product-category-tax.php');
 // include_once('includes/product-brand-tax.php');
 include_once('includes/enqueue-assets.php');
+include_once('includes/utility-functions.php');
 
 
 function _themename__pluginname_activate()
